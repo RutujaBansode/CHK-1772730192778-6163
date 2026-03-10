@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Climate Impact Trend Analysis & Prediction</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<div class="background-container"></div>
+
+<div class="content-wrapper">
+
+<header class="header">
+<h1>Climate Impact Trend Analysis & Prediction</h1>
+<p class="description">
+Analyze long-term climate datasets and predict environmental impacts.
+</p>
+</header>
+
+<!-- Future Climate Simulator -->
+<section class="card glass-card simulator-card mt-4">
+
+<h2>Future Climate Simulator</h2>
+<div class="divider"></div>
+
+<div class="simulator-grid">
+
+<!-- Left Panel -->
+<div class="simulator-inputs">
+
+<div class="input-group">
+<div class="flex-between">
+<label>Target Year</label>
+<span id="yearLabel" class="slider-val">2050</span>
+</div>
+
+<input type="range"
+id="simYear"
+min="2030"
+max="2100"
+step="10"
+value="2050"
+class="custom-slider">
+
+<div class="slider-marks">
+<span>2030</span>
+<span>2100</span>
+</div>
+</div>
+
+<div class="input-group mt-4">
+
+<div class="flex-between">
+<label>CO₂ Increase Rate</label>
+<span id="co2Label" class="slider-val">Medium</span>
+</div>
+
+<input type="range"
+id="simCO2"
+min="1"
+max="3"
+step="1"
+value="2"
+class="custom-slider">
+
+</div>
+
+<div class="input-group mt-4">
+
+<div class="flex-between">
+<label>Pollution Level</label>
+<span id="pollutionLabel" class="slider-val">Moderate</span>
+</div>
+
+<input type="range"
+id="simPollution"
+min="1"
+max="3"
+step="1"
+value="2"
+class="custom-slider">
+
+</div>
+
+<div class="toggle-group mt-4 pt-4 border-top">
+
+<label class="toggle-label">
+
+<span class="toggle-text">
+Compare with Present Climate
+</span>
+
+<div class="switch">
+<input type="checkbox" id="simCompareToggle">
+<span class="slider round"></span>
+</div>
+
+</label>
+
+</div>
+
+<button
+type="button"
+class="btn btn-primary full-width mt-4"
+id="simBtn">
+
+Simulate Future Climate
+
+</button>
+
+</div>
+
+<!-- Right Panel -->
+<div class="simulator-results">
+
+<div id="simEmptyState" class="empty-state">
+<div class="icon-large">🔮</div>
+<p>Adjust parameters and simulate to view future impact.</p>
+</div>
+
+<div id="simResultContent" class="hidden">
+
+<div class="sim-stats-grid">
+
+<!-- Temperature -->
+<div class="sim-stat-card">
+
+<h3>Temperature Increase</h3>
+
+<div class="sim-stat-body">
+
+<div class="sim-val-group">
+
+<span class="stat-icon">🌡️</span>
+
+<span class="sim-val danger-text" id="simResTemp">
++1.8°C
+</span>
+
+<span class="compare-val hidden" id="compTemp">
+(+0.0°C)
+</span>
+
+</div>
+
+<div class="mini-chart-container">
+<canvas id="simTempChart"></canvas>
+</div>
+
+</div>
+</div>
+
+<!-- Water Risk -->
+<div class="sim-stat-card">
+
+<h3>Water Scarcity Risk</h3>
+
+<div class="sim-stat-body">
+
+<div class="sim-val-group">
+
+<span class="stat-icon">💧</span>
+
+<span class="sim-badge badge-warning" id="simResWater">
+Medium
+</span>
+
+</div>
+
+<p class="sim-desc text-sm mt-2 text-muted" id="simWaterDesc">
+Drought frequency expected to increase by 15%.
+</p>
+
+</div>
+</div>
+
+<!-- Sea Level -->
+<div class="sim-stat-card full-width-grid">
+
+<h3>Sea Level Rise</h3>
+
+<div class="sim-stat-body horizontal-layout">
+
+<div class="sim-val-group">
+
+<span class="stat-icon">🌊</span>
+
+<span class="sim-val" id="simResSea">
++32 cm
+</span>
+
+<span class="compare-val hidden" id="compSea">
+(+0 cm)
+</span>
+
+</div>
+
+<div class="progress-container">
+<div class="progress-bar" id="simSeaBar" style="width:0%"></div>
+</div>
+
+</div>
+</div>
+
+</div>
+
+<!-- Impact Summary -->
+<div class="sim-summary-card mt-4">
+
+<h3>Climate Impact Summary</h3>
+
+<p id="simResSummary">
+
+Based on moderate CO₂ increase and pollution,
+coastal regions may experience more flooding
+and agricultural shifts due to rising
+temperatures.
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- Climate Risk Map -->
+<section class="card map-card mt-4">
+
+<h2>Global Climate Risk Map</h2>
+
+<div class="divider"></div>
+
+<div id="riskMap" class="map-container"></div>
+
+</section>
+
+</div>
+
+<footer class="footer">
+<p>&copy; 2026 Climate Impact AI. All rights reserved.</p>
+</footer>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+</html>
