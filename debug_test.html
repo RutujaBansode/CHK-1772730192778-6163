@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard Debug Test</title>
+</head>
+<body>
+    <h1>Dashboard Debug Test</h1>
+    <div>
+        <strong>Temperature:</strong> <span id="temperature-value">--</span> °C
+    </div>
+    <div>
+        <strong>Humidity:</strong> <span id="humidity-value">--</span> %
+    </div>
+    <div>
+        <strong>Air Quality:</strong> <span id="air-quality-value">--</span> ppm
+    </div>
+    <div>
+        <strong>Last Update:</strong> <span id="last-update-time">Never</span>
+    </div>
+
+    <script>
+        const apiUrl = 'http://localhost:5000/iot/api/sensor-data';
+
+        async function fetchData() {
+            try {
+                const cacheBustUrl = `${apiUrl}?t=${Date.now()}`;
+                console.log('Fetching:', cacheBustUrl);
+
+                const response = await fetch(cacheBustUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    }
+                });
+
+                const data = await response.json();
+                console.log('Data received:', data);
+
+                // Update DOM
+                if (data.temperature !== null && data.temperature !== undefined) {
+                    const tempElement = document.getElementById('temperature-value');
+                    tempElement.textContent = data.temperature.toFixed(1);
+                    tempElement.style.display = 'inline';
+                    tempElement.offsetHeight; // Force reflow
+                    console.log('Temperature updated to:', data.temperature.toFixed(1));
+                }
+
+                if (data.humidity !== null && data.humidity !== undefined) {
+                    const humidityElement = document.getElementById('humidity-value');
+                    humidityElement.textContent = data.humidity.toFixed(1);
+                    humidityElement.style.display = 'inline';
+                    humidityElement.offsetHeight;
+                    console.log('Humidity updated to:', data.humidity.toFixed(1));
+                }
+
+                if (data.gas_value !== null && data.gas_value !== undefined) {
+                    const airQualityElement = document.getElementById('air-quality-value');
+                    airQualityElement.textContent = data.gas_value;
+                    airQualityElement.style.display = 'inline';
+                    airQualityElement.offsetHeight;
+                    console.log('Air quality updated to:', data.gas_value);
+                }
+
+                if (data.last_updated) {
+                    document.getElementById('last-update-time').textContent = new Date(data.last_updated).toLocaleTimeString();
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Test immediately
+        fetchData();
+
+        // Then every 3 seconds
+        setInterval(fetchData, 3000);
+    </script>
+</body>
+</html>

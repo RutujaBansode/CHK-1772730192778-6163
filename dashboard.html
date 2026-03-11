@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climate Monitoring Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">
+                <i class="fas fa-cloud-sun"></i>
+                Climate Monitoring Dashboard
+            </h1>
+            <div class="status-indicator">
+                <span id="connection-status" class="status-connected">
+                    <i class="fas fa-circle"></i>
+                    Hardware Status: Connected
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="dashboard">
+        <div class="sensor-grid">
+            <div class="sensor-card temperature-card">
+                <div class="sensor-icon">
+                    <i class="fas fa-thermometer-half"></i>
+                </div>
+                <h3 class="sensor-title">Temperature</h3>
+                <div class="sensor-value">
+                    <span id="temperature-value">--</span>
+                    <span class="sensor-unit">°C</span>
+                </div>
+                <div id="temperature-status" class="sensor-status status-loading">
+                    Loading...
+                </div>
+            </div>
+
+            <div class="sensor-card humidity-card">
+                <div class="sensor-icon">
+                    <i class="fas fa-tint"></i>
+                </div>
+                <h3 class="sensor-title">Humidity</h3>
+                <div class="sensor-value">
+                    <span id="humidity-value">--</span>
+                    <span class="sensor-unit">%</span>
+                </div>
+                <div id="humidity-status" class="sensor-status status-loading">
+                    Loading...
+                </div>
+            </div>
+
+            <div class="sensor-card air-quality-card">
+                <div class="sensor-icon">
+                    <i class="fas fa-wind"></i>
+                </div>
+                <h3 class="sensor-title">Air Quality</h3>
+                <div class="sensor-value">
+                    <span id="air-quality-value">--</span>
+                    <span class="sensor-unit">ppm</span>
+                </div>
+                <div id="air-quality-status" class="sensor-status status-loading">
+                    Loading...
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h3 class="chart-title">Sensor Readings History</h3>
+            <canvas id="sensorChart"></canvas>
+        </div>
+
+        <div class="last-update">
+            <i class="fas fa-clock"></i>
+            Last updated: <span id="last-update-time">Never</span>
+        </div>
+    </main>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
