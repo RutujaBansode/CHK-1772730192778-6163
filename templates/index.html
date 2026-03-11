@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Climate Impact Trend Analysis & Prediction</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">🌍</span>
+                <span class="logo-text">ClimateImpact AI</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#dashboardSection" class="active">Dashboard</a></li>
+                <li><a href="#predictionsSection">Climate Predictions</a></li>
+                <li><a href="#historicalSection">Global Risk Map</a></li>
+                <li><a href="#" id="hardwareMonitorBtn">Hardware Monitor</a></li>
+                <li><a href="#userManual">User Manual</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="btn-icon" id="themeToggle" title="Toggle Dark/Light Mode">🌓</button>
+                <button class="btn btn-outline btn-sm" id="helpBtn">Help</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="background-container"></div>
+
+    <!-- Help Instructions Panel -->
+    <div id="helpPanel" class="help-panel hidden">
+        <div class="help-header">
+            <h3>📋 Getting Started Guide</h3>
+            <button id="helpCloseBtn" class="help-close">✕</button>
+        </div>
+        <div class="help-content">
+            <div class="help-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>🌍 Enter City Name</h4>
+                    <p>Type a major city name (e.g., Chicago, Paris, Tokyo) in the "Target City" search box.</p>
+                </div>
+            </div>
+            <div class="help-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>🔍 Run Analysis</h4>
+                    <p>Click the "Run Climate Prediction" button to fetch and analyze climate data.</p>
+                </div>
+            </div>
+            <div class="help-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h4>📊 View Results</h4>
+                    <p>Explore the Past Climate Chart, Present Weather conditions, and Future Forecast for the selected city.</p>
+                </div>
+            </div>
+            <div class="help-step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h4>🧪 Simulate Future</h4>
+                    <p>Use the Climate Simulator sliders to adjust year, CO₂ levels, and pollution, then click "Simulate" to see projections.</p>
+                </div>
+            </div>
+            <div class="help-step">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <h4>🗺️ Check Risk Map</h4>
+                    <p>Navigate to "Historical Data" to view the Global Climate Risk Map. Hover over zones to see specific risk levels.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <header class="header">
+            <h1>Climate Impact <span class="highlight">Trend Analysis & Prediction</span></h1>
+            <p class="description">
+                Interactive platform for environmental risk assessment and future trend simulation.
+            </p>
+        </header>
+
+        <!-- Main Feature Area -->
+        <main class="main-grid" id="predictionsSection">
+            <!-- Left Panel: City Climate Analysis Input -->
+            <section class="card city-analysis-card">
+                <h2>City Climate Analysis</h2>
+                <div class="divider"></div>
+                
+                <form id="cityAnalyzeForm" class="city-input-section">
+                    <div class="input-group" style="flex: 1;">
+                        <label>Target City</label>
+                        <input type="text" id="analyze_city_input" placeholder="Search major cities (e.g., Chicago, Paris, Tokyo)..." required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="analyzeCityBtn">Run Climate Prediction</button>
+                </form>
+
+                <!-- Loading Spinner & Error Message -->
+                <div id="cityLoadingSpinner" class="hidden mt-4 text-center">
+                    <div class="spinner"></div>
+                    <p class="text-sm mt-2 text-muted">Fetching climate data...</p>
+                </div>
+                <div id="cityErrorMsg" class="hidden mt-4 result-box danger"></div>
+
+            </section>
+
+            <!-- Right Panel: Results & Visualizations -->
+            <section class="card prediction-card" id="analysisResultsPanel">
+                <h2>Analysis Results</h2>
+                <div class="divider"></div>
+                
+                <!-- Initial State Placeholder -->
+                <div id="emptyState" class="empty-state">
+                    <div class="icon-large">🌍</div>
+                    <p>Enter a city name and analyze to view climate data.</p>
+                </div>
+
+                <!-- City Analysis Results Section (Hidden initially) -->
+                <div id="cityAnalysisResults" class="hidden">
+                    <div class="trend-summary-box mb-4">
+                        <h3>Climate Trend Summary</h3>
+                        <p id="cityTrendSummaryText">Analyzing data...</p>
+                    </div>
+
+                    <!-- 1. Present Climate -->
+                    <div class="analysis-tabs-grid">
+                        <!-- Present Climate -->
+                        <div class="analysis-section present-climate">
+                            <h3>1. Present Weather</h3>
+                            <div class="city-name-display mb-3">
+                                <h4 id="displayCityName" class="text-center text-primary">--</h4>
+                            </div>
+                            <div class="present-grid mt-2">
+                                <div class="data-card">
+                                    <span class="data-icon">🌡️</span>
+                                    <div class="data-info">
+                                        <span class="data-label">Temperature</span>
+                                        <span class="data-value" id="curTemp">--</span>
+                                    </div>
+                                </div>
+                                <div class="data-card date-time-card">
+                                    <span class="data-icon">🕐</span>
+                                    <div class="data-info">
+                                        <span class="data-label">Current Date & Time</span>
+                                        <div class="date-time-info">
+                                            <div class="date-info">
+                                                <span class="date-label-small">Date:</span>
+                                                <span class="date-value" id="dashboardDate">--</span>
+                                            </div>
+                                            <div class="time-info">
+                                                <span class="time-label-small">Time:</span>
+                                                <span class="time-value" id="dashboardTime">--</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="data-card">
+                                    <span class="data-icon">💧</span>
+                                    <div class="data-info">
+                                        <span class="data-label">Humidity</span>
+                                        <span class="data-value" id="curHum">--</span>
+                                    </div>
+                                </div>
+                                <div class="data-card">
+                                    <span class="data-icon">🌬️</span>
+                                    <div class="data-info">
+                                        <span class="data-label">Wind</span>
+                                        <span class="data-value" id="curWind">--</span>
+                                    </div>
+                                </div>
+                                <div class="data-card">
+                                    <span class="data-icon">📊</span>
+                                    <div class="data-info">
+                                        <span class="data-label">Pressure</span>
+                                        <span class="data-value" id="curPressure">--</span>
+                                    </div>
+                                </div>
+                                <div class="data-card">
+                                    <span class="data-icon">🏭</span>
+                                    <div class="data-info">
+                                        <span class="data-label">AQI</span>
+                                        <span class="data-value" id="curAQI">--</span>
+                                    </div>
+                                </div>
+                                <div class="data-card highlight-data-card">
+                                    <span class="data-icon" id="curCondIcon">☁️</span>
+                                    <div class="data-info">
+                                        <span class="data-label">Condition</span>
+                                        <span class="data-value" id="curCond">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Future Climate Prediction -->
+                    <div class="analysis-section future-climate mt-4">
+                        <h3>2. Future Climate Prediction (Next 7 Days)</h3>
+                        
+                        <div class="future-forecast-container mt-2">
+                            <div id="forecastCards" class="forecast-cards-scroll">
+                                <!-- Cards inserted via JS -->
+                            </div>
+                        </div>
+
+                        <div class="compare-chart-wrapper mt-4">
+                            <h4>Compare Past vs Future Trend</h4>
+                            <div class="chart-container" style="height: 250px;">
+                                <canvas id="compareTrendChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Future Climate Simulator -->
+        <section class="card glass-card simulator-card mt-4">
+            <h2>Future Climate Simulator</h2>
+            <div class="divider"></div>
+            
+            <div class="simulator-grid">
+                <!-- Left Panel: Simulator Inputs -->
+                <div class="simulator-inputs">
+                    <div class="input-group">
+                        <div class="flex-between">
+                            <label>Target Year</label>
+                            <span id="yearLabel" class="slider-val">2031</span>
+                        </div>
+                        <input type="range" id="simYear" min="2027" max="2031" step="1" value="2031" class="custom-slider">
+                        <div class="slider-marks">
+                            <span>2027</span><span>2031</span>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group mt-4">
+                        <div class="flex-between">
+                            <label>CO₂ Increase Rate</label>
+                            <span id="co2Label" class="slider-val">Medium</span>
+                        </div>
+                        <input type="range" id="simCO2" min="1" max="3" step="1" value="2" class="custom-slider">
+                    </div>
+                    
+                    <div class="input-group mt-4">
+                        <div class="flex-between">
+                            <label>Pollution Level</label>
+                            <span id="pollutionLabel" class="slider-val">Moderate</span>
+                        </div>
+                        <input type="range" id="simPollution" min="1" max="3" step="1" value="2" class="custom-slider">
+                    </div>
+
+                    <div class="toggle-group mt-4 pt-4 border-top">
+                        <label class="toggle-label">
+                            <span class="toggle-text">Compare with Present Climate</span>
+                            <div class="switch">
+                                <input type="checkbox" id="simCompareToggle">
+                                <span class="slider round"></span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <button type="button" class="btn btn-primary full-width mt-4" id="simBtn">Simulate Future Climate</button>
+                </div>
+
+                <!-- Right Panel: Simulator Results -->
+                <div class="simulator-results">
+                    <!-- Initial State -->
+                    <div id="simEmptyState" class="empty-state">
+                        <div class="icon-large">🔮</div>
+                        <p>Adjust parameters and simulate to view future impact.</p>
+                    </div>
+                    
+                    <!-- Result Content (Hidden by default) -->
+                    <div id="simResultContent" class="hidden">
+                        <div class="sim-stats-grid">
+                            
+                            <!-- Temp Increase -->
+                            <div class="sim-stat-card">
+                                <h3>Temperature Increase</h3>
+                                <div class="sim-stat-body">
+                                    <div class="sim-val-group">
+                                        <span class="stat-icon">🌡️</span>
+                                        <span class="sim-val danger-text" id="simResTemp">+1.8°C</span>
+                                        <span class="compare-val hidden" id="compTemp">(+0.0°C)</span>
+                                    </div>
+                                    <div class="mini-chart-container">
+                                        <canvas id="simTempChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Water Scarcity -->
+                            <div class="sim-stat-card">
+                                <h3>Water Scarcity Risk</h3>
+                                <div class="sim-stat-body">
+                                    <div class="sim-val-group">
+                                        <span class="stat-icon">💧</span>
+                                        <span class="sim-badge badge-warning" id="simResWater">Medium</span>
+                                    </div>
+                                    <p class="sim-desc text-sm mt-2 text-muted" id="simWaterDesc">Drought frequency expected to increase by 15%.</p>
+                                </div>
+                            </div>
+
+                            <!-- Sea Level Rise -->
+                            <div class="sim-stat-card full-width-grid">
+                                <h3>Sea Level Rise</h3>
+                                <div class="sim-stat-body horizontal-layout">
+                                    <div class="sim-val-group">
+                                        <span class="stat-icon">🌊</span>
+                                        <span class="sim-val" id="simResSea">+32 cm</span>
+                                        <span class="compare-val hidden" id="compSea">(+0 cm)</span>
+                                    </div>
+                                    <div class="progress-container">
+                                        <div class="progress-bar" id="simSeaBar" style="width: 0%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Impact Summary -->
+                        <div class="sim-summary-card mt-4">
+                            <h3>Climate Impact Summary</h3>
+                            <p id="simResSummary">Based on moderate CO₂ increase and pollution, coastal regions will experience frequent flooding by 2050, accompanied by shifts in agricultural zones due to rising median temperatures.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+<!-- Climate Risk Map -->
+<section id="historicalSection" class="card map-card mt-4">
+
+<h2>Global Climate Risk Map</h2>
+
+<div class="divider"></div>
+
+<div id="riskMap" class="map-container"></div>
+
+</section>
+
+<!-- User Manual Section (hidden by default) -->
+<section id="userManual" class="card manual-card mt-4 hidden">
+    <h2>User Manual</h2>
+    <div class="divider"></div>
+    <p>Welcome to ClimateImpact AI! Click on the sections below to learn more about each feature:</p>
+    
+    <details class="manual-section">
+        <summary>Dashboard Overview</summary>
+        <p>The dashboard provides an overview of the climate analysis interface. Here, you can access all main features of the application.</p>
+    </details>
+    
+    <details class="manual-section">
+        <summary>Climate Predictions</summary>
+        <p>Enter a city name in the search box and click 'Run Climate Prediction' to analyze past, present, and future climate data for that location. View charts and forecasts for informed decision-making.</p>
+    </details>
+    
+    <details class="manual-section">
+        <summary>Historical Data</summary>
+        <p>Explore the global climate risk map with interactive zones. Click on the map markers to see details about climate risks in different regions.</p>
+    </details>
+    
+    <details class="manual-section">
+        <summary>Future Climate Simulator</summary>
+        <p>Use the simulator to model future climate impacts. Adjust parameters like target year, CO₂ levels, and pollution, then click 'Simulate Future Climate' to see projected changes.</p>
+    </details>
+    
+    <details class="manual-section">
+        <summary>Help & Support</summary>
+        <p>For additional assistance, click the 'Help' button in the navigation bar or contact our support team.</p>
+    </details>
+</section>
+
+</div>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-col footer-left">
+                <h4>Quick Links</h4>
+                <a href="#">Dashboard</a>
+                <a href="#">Predictions</a>
+                <a href="#">Documentation</a>
+            </div>
+            <div class="footer-info footer-center">
+                <h3>Climate Impact AI</h3>
+                <p>Simplifying climate insights for a sustainable future.</p>
+                <div class="footer-v">v2.4.0 &copy; 2026 Climate Lab</div>
+            </div>
+            <div class="footer-col footer-right">
+                <h4>Contact</h4>
+                <a href="#">Support</a>
+                <a href="#">GitHub Repo</a>
+                <a href="#">Privacy Policy</a>
+            </div>
+        </div>
+    </footer>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script src="{{ url_for('static', filename='js/main.js') }}?v=2024"></script>
+
+</body>
+</html>
